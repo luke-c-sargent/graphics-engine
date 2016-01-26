@@ -1,12 +1,10 @@
-#include <time.h>
-#include "TimeKeeper.h"
+#pragma once
+#include "Timepoint.h"
 
 class Timer{
-	timespec _start;
-	static TimeKeeper* _tkp=0;
-	start(){_start=tkp->get_time();}
-	stop(){return };
-	void reset();
+	Timepoint _start;
+	Timepoint stop(Timepoint t){return t-_start;};
+	void reset(Timepoint t){_start=t;};
 public:
-	Timer(TimeKeeper* tkp):_tkp(tkp){}
-}
+	Timer(Timepoint t):_start(t){}
+};

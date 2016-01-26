@@ -2,6 +2,14 @@
 #include "TimeKeeper.h"
 
 void TimeKeeper::init(){
-	get_current_time(start);
+	start=get_current_time();
 	//std::cout << "this happened" << std::endl;
+}
+
+void TimeKeeper::print_time(){
+		{get_current_time().print();}
+}
+
+Timer TimeKeeper::start_timer(){
+	return Timer(get_current_time());
 }

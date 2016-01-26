@@ -3,8 +3,13 @@
 #include "TimeKeeper.h"
 
 class LinuxTime: public TimeKeeper {
-	void get_current_time(timespec& tsr){
+	Timepoint get_current_time(){
+		timespec tsr;
 		clock_gettime(CLOCK_MONOTONIC, &tsr);
+		Timepoint tp;
+		tp._seconds = tsr.tv_sec;
+		tp._nanos = tsr.tv_nsec;
+		return tp;
 	}
 public:
 	LinuxTime(){
