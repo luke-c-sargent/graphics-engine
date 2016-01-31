@@ -1,7 +1,7 @@
 #pragma once
 struct Timepoint{
 	uint_fast32_t _seconds;
-	uint_fast64_t _nanos;
+	uint_fast32_t _nanos;
 
 	friend Timepoint operator-(const Timepoint& lhs,const Timepoint& rhs){
 		Timepoint now;

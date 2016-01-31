@@ -56,9 +56,4 @@ void Game::init(){
 
 void Game::main_loop(){
 	//forever and ever
-	
-
-	while(true){
-
-	}
 }
