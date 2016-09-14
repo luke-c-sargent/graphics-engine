@@ -3,31 +3,47 @@
 #include <stdint.h>
 #include <iostream>
 
-class TimeKeeper{
-	struct Timepoint{
-		uint_fast32_t seconds;
-		uint_fast64_t nanos;
+#define BILLION 1000000000
 
-		friend Timepoint operator-(const Timepoint& lhs,const Timepoint& rhs){
-			Timepoint now;
-			now.seconds = lhs.seconds - rhs.seconds;
-			now.nanos = lhs.nanos - rhs.nanos;
-			return now;
+class Timepoint{
+public:
+	uint_fast32_t seconds;
+	uint_fast32_t nanos;
+
+	friend Timepoint operator-(const Timepoint& lhs,const Timepoint& rhs){
+		uint_fast32_t sec=0;
+		uint_fast32_t ns=0;
+
+		sec = lhs.seconds - rhs.seconds;
+		if (lhs.nanos < rhs.nanos){
+			ns = (BILLION + lhs.nanos) - rhs.nanos;
+			sec -= 1;
 		}
-	};
+		else
+			ns = lhs.nanos - rhs.nanos;
+		return Timepoint(sec, ns);
+	}
+	Timepoint(uint_fast32_t _sec, uint_fast32_t _nsec): seconds(_sec), nanos(_nsec){}
+	Timepoint(const timespec& ts): seconds(ts.tv_sec), nanos(ts.tv_nsec){}
+	Timepoint(){}
+};
+
+class TimeKeeper{
 
 	Timepoint start;
-	virtual void get_current_time(Timepoint& )=0;
-protected:
-	void init();
 public:
+	virtual void get_current_time(Timepoint& )=0;
+	virtual Timepoint get_current_time()=0;
+
 	void print_time(){
-		Timepoint now;
-		get_current_time(now);
-		uint_fast64_t now_ns=now.tv_nsec;
-		uint_fast64_t start_ns=start.tv_nsec;
-		std::cout << now_ns-start_ns << " ns" << std::endl;
+		Timepoint now = get_current_time();
+		std::cout << now.nanos-start.nanos << " ns" << std::endl;
 	}
 
-	virtual ~TimeKeeper(){};
+	Timepoint elapsed(){
+		return  get_current_time() - start; 
+	}
+//	TimeKeeper():start(get_current_time()){}
+
+	virtual ~TimeKeeper(){}
 };

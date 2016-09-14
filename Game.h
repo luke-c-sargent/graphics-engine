@@ -3,7 +3,6 @@
 #include "Timer.h"
 #include "TimeKeeper.h"
 #include "LinuxTime.h"
-#define DEBUG true
 
 class Game{
 public:

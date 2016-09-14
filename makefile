@@ -1,5 +1,5 @@
 HEADERS= Game.h GameWindow.h LinuxTime.h TimeKeeper.h
-SOURCES= Game.c++ GameWindow.c++ TimeKeeper.c++
+SOURCES= Game.c++ GameWindow.c++
 TESTFILE=test.c++
 
 G++FLAGS= c++0x
@@ -11,9 +11,6 @@ ifeq ($(shell g++ $(HEADERS) $(SOURCES) $(TESTFILE) -o test_exec -std=$(G++FLAGS
 else
 	@echo "\n*** ${REDFG}${WHITEBG}Compilation failed${RESETCOLOR}: execution suppressed ***"
 endif
-
-
-
 
 #text decoration variables
 REDFG=`tput setaf 1`
