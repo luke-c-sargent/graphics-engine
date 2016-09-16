@@ -1,5 +1,5 @@
 #include "Game.h"
-
+#include "Timer.h"
 //constructor
 Game::Game(){
 	std::cout << "Game constructing..." << std::endl;
@@ -37,9 +37,6 @@ void Game::init(){
 	std::cout << "Platform: " << platform_strings[platform] << std::endl;
 	std::cout << "Architecture: " << architecture_strings[architecture] << std::endl;
 
-	if(DEBUG){//******* DEBUG *********************************
-	}//**************** DEBUG *********************************
-
 	if(platform != LINUX){
 		std::cout << "Linux only at the moment";
 		exit(0);
@@ -55,5 +52,22 @@ void Game::init(){
 }
 
 void Game::main_loop(){
+	uint32_t frames = 0;
+	Timer t(tkp);
+	
+	Timepoint _last=tkp->get_current_time();
+	Timepoint _current = _last;
 	//forever and ever
+	while(true){
+		_current = tkp->get_current_time();
+		++frames;	
+		if(t.elapsed().seconds >= 1 ){
+			t.reset();
+			printf("%u\n", frames);
+			frames = 0;
+		}
+
+		//end execution
+		_last = _current;
+	}
 }

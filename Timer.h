@@ -1,10 +1,21 @@
 #pragma once
-#include "Timepoint.h"
+
+#include <time.h>
+#include "TimeKeeper.h"
 
 class Timer{
+	TimeKeeper* _tkp;
 	Timepoint _start;
-	Timepoint stop(Timepoint t){return t-_start;};
-	void reset(Timepoint t){_start=t;};
+
 public:
-	Timer(Timepoint t):_start(t){}
+	void start(){_start=_tkp->get_current_time();}
+	
+	Timepoint elapsed(){return _tkp->get_current_time() - _start;};
+	
+	void reset(){start();}
+	
+	Timer(TimeKeeper* tkp):
+		_start(tkp->get_current_time()){
+			Timer::_tkp = tkp;
+		}
 };

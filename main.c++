@@ -9,7 +9,5 @@
 
 main(){
   Game g;
-  g.tkp->print_time();
-  g.tkp->print_time();
-  g.tkp->print_time();
+  g.main_loop();
 }

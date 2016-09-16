@@ -33,10 +33,10 @@ public:
 
 	//functions
 	Game();
+	void main_loop();
 
 private:
 	//TimeKeeper* tkp;
 	void sense_local_environment();
 	void init();
-	void main_loop();
 };
