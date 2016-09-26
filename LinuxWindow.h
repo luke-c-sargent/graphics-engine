@@ -7,8 +7,8 @@
 #include <GL/gl.h>
 #include <GL/glx.h>
 
-
 #include "GameWindow.h"
+
 class LinuxWindow: GameWindow {
 	//X11 variables
 	Display*			 	display;
