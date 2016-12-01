@@ -6,10 +6,15 @@
 #include "TimeKeeper.h"
 #include "LinuxTime.h"
 #include "Game.h"
+#include "Renderer/Vulkan.h"
 
-main(){
-  Game g;
-  g.tkp->print_time();
-  g.tkp->print_time();
-  g.tkp->print_time();
+int main(){
+  //Game g;
+  //g.tkp->print_time();
+  //g.tkp->print_time();
+  //g.tkp->print_time();
+
+  Vulkan v = Vulkan();
+
+  return 0;
 }

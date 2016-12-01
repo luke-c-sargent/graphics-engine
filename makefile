@@ -1,10 +1,10 @@
-HEADERS= Game.h GameWindow.h LinuxWindow.h LinuxTime.h TimeKeeper.h
-SOURCES= Game.c++ GameWindow.c++
+HEADERS= Game.h GameWindow.h LinuxWindow.h LinuxTime.h TimeKeeper.h ./Renderer/Vulkan.h
+SOURCES= Game.c++ GameWindow.c++ ./Renderer/Vulkan.c++
 TESTFILE=test.c++
 MAINFILE=main.c++
 
 
-G++FLAGS= -lGL -lX11 -lXext
+G++FLAGS= -lGL -lX11 -lXext -lvulkan
 C++STD= c++0x
 
 test: $(HEADERS) $(SOURCES)
