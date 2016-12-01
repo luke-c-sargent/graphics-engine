@@ -20,6 +20,8 @@ class Vulkan{
 
 	// error checker
 	void error_check(VkResult error_code, const std::string&);
+	void populate_instance_info(VkInstanceCreateInfo& ii);
+	void populate_application_info(VkApplicationInfo& ai);
 
 public:
 	Vulkan();

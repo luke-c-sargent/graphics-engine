@@ -7,23 +7,10 @@ Vulkan::Vulkan(){
 
 void Vulkan::init(){
 	//initialize instance creation information structure -----------
-	instanceInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	instanceInfo.pNext = NULL;
-	instanceInfo.flags = 0;
-	instanceInfo.pApplicationInfo = NULL;
-	instanceInfo.enabledLayerCount = 0;
-	instanceInfo.ppEnabledLayerNames = NULL;
-	instanceInfo.enabledExtensionCount = 0;
-	instanceInfo.ppEnabledExtensionNames = NULL;
+	populate_instance_info(instanceInfo);
 
 	// initialize application information structure ----------------
-	applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	applicationInfo.pNext = NULL;
-	applicationInfo.pApplicationName = "GFXENG";
-	applicationInfo.applicationVersion = 0;
-	applicationInfo.pEngineName = "DDD";
-	applicationInfo.engineVersion = 0;
-	applicationInfo.apiVersion = VK_API_VERSION_1_0;
+	populate_application_info(applicationInfo);
 
 	// create instance ---------------------------------------------
 	result = vkCreateInstance(&instanceInfo, NULL, &instance);
@@ -91,7 +78,7 @@ void Vulkan::init(){
 	deviceInfo.enabledLayerCount = 0;
 	deviceInfo.ppEnabledLayerNames = NULL;
 	deviceInfo.enabledExtensionCount = 0;
-	deviceInfo.ppenabledExtensionNames = NULL;
+	deviceInfo.ppEnabledExtensionNames = NULL;
 
 	deviceInfo.pEnabledFeatures = NULL;
 
@@ -101,19 +88,34 @@ void Vulkan::init(){
 	deviceQueueInfo.pNext = NULL;
 	deviceQueueInfo.flags = 0;
 	//first family best family
-	devioceQueueInfo.queueFamilyIndex = 0;
-
-
+	deviceQueueInfo.queueFamilyIndex = 0;
 
 
 	vkDestroyInstance(instance, NULL);
 }
 
-/*VkResult Vulkan::vkCreateInstance(
-    	const VkInstanceCreateInfo*                 pCreateInfo,
-    	const VkAllocationCallbacks*                pAllocator,
-    	VkInstance*                                 pInstance){
-}*/
+void Vulkan::populate_instance_info(VkInstanceCreateInfo& ii){
+		//initialize instance creation information structure -----------
+	ii.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	ii.pNext = NULL;
+	ii.flags = 0;
+	ii.pApplicationInfo = NULL;
+	ii.enabledLayerCount = 0;
+	ii.ppEnabledLayerNames = NULL;
+	ii.enabledExtensionCount = 0;
+	ii.ppEnabledExtensionNames = NULL;
+}
+
+void Vulkan::populate_application_info(VkApplicationInfo& ai){
+	ai.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	ai.pNext = NULL;
+	ai.pApplicationName = "GFXENG";
+	ai.applicationVersion = 0;
+	ai.pEngineName = "DDD";
+	ai.engineVersion = 0;
+	ai.apiVersion = VK_API_VERSION_1_0;
+}
+
 
 void Vulkan::error_check(VkResult error_code, const std::string& error_type){
     /*
