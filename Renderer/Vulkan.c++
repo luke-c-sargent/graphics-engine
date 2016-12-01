@@ -1,5 +1,4 @@
 #include "Vulkan.h"
-#include <vector>
 
 Vulkan::Vulkan(){
 	init();
@@ -100,13 +99,22 @@ void Vulkan::init(){
 	deviceInfo.pQueueCreateInfos = &deviceQueueInfo;
 
 	VkDevice logical_device;
-	result = vkCreateDevice(physicalDevices[0], &deviceInfo, NULL, &logical_device);
+	//result = vkCreateDevice(physicalDevices[0], &deviceInfo, NULL, &logical_device);
 	error_check(result, "Logical Device Creation");
 
 	vkDestroyInstance(instance, NULL);
 }
 
 void Vulkan::populate_instance_info(VkInstanceCreateInfo& ii){
+	// enumerate extensions
+	enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+	#if defined(_WIN32)
+		enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+	#else
+		enabledExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+	#endif
+
+
 	//initialize instance creation information structure -----------
 	ii.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	ii.pNext = NULL;
@@ -114,8 +122,8 @@ void Vulkan::populate_instance_info(VkInstanceCreateInfo& ii){
 	ii.pApplicationInfo = NULL;
 	ii.enabledLayerCount = 0;
 	ii.ppEnabledLayerNames = NULL;
-	ii.enabledExtensionCount = 0;
-	ii.ppEnabledExtensionNames = NULL;
+	ii.enabledExtensionCount = enabledExtensions.size();
+	ii.ppEnabledExtensionNames = &enabledExtensions[0];
 }
 
 void Vulkan::populate_application_info(VkApplicationInfo& ai){

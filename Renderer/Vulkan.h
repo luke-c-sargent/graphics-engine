@@ -1,8 +1,11 @@
 #pragma once
 
+#define VK_USE_PLATFORM_XCB_KHR
+
 #include <vulkan/vulkan.h>
 #include <iostream>
 #include <cstring>
+#include <vector>
 
 #define VK_VER_MAJOR(X) ((((uint32_t)(X))>>22)&0x3FF)
 #define VK_VER_MINOR(X) ((((uint32_t)(X))>>12)&0x3FF)
@@ -13,6 +16,7 @@ class Vulkan{
 	VkInstanceCreateInfo instanceInfo;
 	VkInstance instance;
 	VkResult result = VK_NOT_READY;
+	std::vector<const char*> enabledExtensions;
 
 	//constructor
 	//initializer

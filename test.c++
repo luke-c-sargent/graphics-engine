@@ -8,6 +8,8 @@
 #include "Game.h"
 #include "Renderer/Vulkan.h"
 
+#define VK_USE_PLATFORM_XCB_KHR
+
 int main(){
   //Game g;
   //g.tkp->print_time();
