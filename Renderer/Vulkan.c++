@@ -91,11 +91,23 @@ void Vulkan::init(){
 	deviceQueueInfo.queueFamilyIndex = 0;
 
 
+	// create test queue
+	float queuePriorities[] = { 1.0f };
+	deviceQueueInfo.queueCount = 1;
+	deviceQueueInfo.pQueuePriorities = queuePriorities;
+	// set device
+	deviceInfo.queueCreateInfoCount = 1;
+	deviceInfo.pQueueCreateInfos = &deviceQueueInfo;
+
+	VkDevice logical_device;
+	result = vkCreateDevice(physicalDevices[0], &deviceInfo, NULL, &logical_device);
+	error_check(result, "Logical Device Creation");
+
 	vkDestroyInstance(instance, NULL);
 }
 
 void Vulkan::populate_instance_info(VkInstanceCreateInfo& ii){
-		//initialize instance creation information structure -----------
+	//initialize instance creation information structure -----------
 	ii.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	ii.pNext = NULL;
 	ii.flags = 0;
