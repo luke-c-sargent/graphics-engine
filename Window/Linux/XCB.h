@@ -12,11 +12,9 @@ class XCB : GameWindow {
 
 	std::string name = "Test XCB window! :D";
 
-	/*
-	xcb_atom_t wmProtocols;
-	xcb_atom_t wmDeleteWin;
-
-*/
 public:
+	XCB();
 	XCB(int, int);
+	xcb_window_t get_window();
+	xcb_connection_t* get_connection();
 };

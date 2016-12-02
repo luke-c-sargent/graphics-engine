@@ -1,4 +1,5 @@
 #include "Vulkan.h"
+#include "../Window/Linux/XCB.h"
 
 Vulkan::Vulkan(){
 	init();
@@ -102,6 +103,41 @@ void Vulkan::init(){
 	//result = vkCreateDevice(physicalDevices[0], &deviceInfo, NULL, &logical_device);
 	error_check(result, "Logical Device Creation");
 
+
+	// initialize surfaces
+	PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfaceFormatsKHR = NULL;
+
+	// somewhere in initialization code
+	vkGetPhysicalDeviceSurfaceFormatsKHR = (PFN_vkGetPhysicalDeviceSurfaceFormatsKHR)vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceFormatsKHR");
+	if (!vkGetPhysicalDeviceSurfaceFormatsKHR) {
+	    std::cout << "ERROR IN FUNCTION POINTER ACQUISITION\n";
+	}
+
+	XCB xcb_window;
+
+	VkSurfaceKHR surface;
+	#if defined(_WIN32)
+	VkWin32SurfaceCreateInfoKHR surfaceCreateInfo;
+	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	surfaceCreateInfo.hinstance = (HINSTANCE)platformHandle; // provided by the platform code
+	surfaceCreateInfo.hwnd = (HWND)platformWindow;           // provided by the platform code
+	VkResult result = vkCreateWin32SurfaceKHR(instance, &surfaceCreateInfo, NULL, &surface);
+	#elif defined(__ANDROID__)
+	VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo;
+	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+	surfaceCreateInfo.window = window;                       // provided by the platform code
+	VkResult result = vkCreateAndroidSurfaceKHR(instance, &surfaceCreateInfo, NULL, &surface);
+	#else
+	VkXcbSurfaceCreateInfoKHR surfaceCreateInfo;
+	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+	surfaceCreateInfo.connection = xcb_window.get_connection();               // provided by the platform code
+	surfaceCreateInfo.window = xcb_window.get_window();                       // provided by the platform code
+	VkResult result = vkCreateXcbSurfaceKHR(instance, &surfaceCreateInfo, NULL, &surface);
+	#endif
+	error_check(result, "Platform-specific surface");
+
+
+
 	vkDestroyInstance(instance, NULL);
 }
 
@@ -124,6 +160,7 @@ void Vulkan::populate_instance_info(VkInstanceCreateInfo& ii){
 	ii.ppEnabledLayerNames = NULL;
 	ii.enabledExtensionCount = enabledExtensions.size();
 	ii.ppEnabledExtensionNames = &enabledExtensions[0];
+
 }
 
 void Vulkan::populate_application_info(VkApplicationInfo& ai){

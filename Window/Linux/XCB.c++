@@ -1,6 +1,10 @@
 #include "XCB.h"
 #include <xcb/xcb.h>
 
+XCB::XCB(){
+  XCB(800,600);
+}
+
 XCB::XCB(int _width, int _height){
 	connection = xcb_connect (NULL, NULL);
 
@@ -48,5 +52,13 @@ XCB::XCB(int _width, int _height){
 
     /* Make sure commands are sent before we pause so that the window gets shown */
     xcb_flush (connection);
-    while(true){}
+    //while(true){}
+}
+
+xcb_window_t XCB::get_window(){
+  return window;
+}
+
+xcb_connection_t* XCB::get_connection(){
+  return connection;
 }
