@@ -17,6 +17,7 @@ class Vulkan{
 	VkInstance instance;
 	VkResult result = VK_NOT_READY;
 	std::vector<const char*> enabledExtensions;
+	std::vector<const char*> deviceExtensions;
 
 	//constructor
 	//initializer

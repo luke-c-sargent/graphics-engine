@@ -6,6 +6,9 @@ Vulkan::Vulkan(){
 }
 
 void Vulkan::init(){
+	#ifndef VK_USE_PLATFORM_XCB_KHR
+	std::cout << "!!!!!!!!!!!!!!!!!!!!!!PLATFORM NOT DEFINED" << std::endl;
+	#endif
 	//initialize instance creation information structure -----------
 	populate_instance_info(instanceInfo);
 
@@ -23,7 +26,7 @@ void Vulkan::init(){
 	std::cout << "Devices enumerated: " << deviceCount << std::endl;
 
 	std::vector<VkPhysicalDevice> physicalDevices(deviceCount);
-	result = vkEnumeratePhysicalDevices(instance, &deviceCount, &physicalDevices[0]);
+	result = vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices.data());
 	
 	VkPhysicalDeviceProperties deviceProperties;
 
@@ -47,6 +50,7 @@ void Vulkan::init(){
 	// enumerate queue families -----------------------------------
 	// list of device queues per device
 	std::vector<std::vector<VkQueueFamilyProperties>> deviceQueueFamilyProperties(deviceCount);
+
 	for (uint32_t i = 0; i < deviceCount; i++) {
 		uint32_t queueFamilyCount = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevices[i], &queueFamilyCount, NULL);
@@ -88,7 +92,8 @@ void Vulkan::init(){
 	deviceQueueInfo.pNext = NULL;
 	deviceQueueInfo.flags = 0;
 	//first family best family
-	deviceQueueInfo.queueFamilyIndex = 0;
+	int32_t queue_fam = 0;
+	deviceQueueInfo.queueFamilyIndex = queue_fam;
 
 
 	// create test queue
@@ -100,8 +105,31 @@ void Vulkan::init(){
 	deviceInfo.pQueueCreateInfos = &deviceQueueInfo;
 
 	VkDevice logical_device;
-	//result = vkCreateDevice(physicalDevices[0], &deviceInfo, NULL, &logical_device);
+	result = vkCreateDevice(physicalDevices[0], &deviceInfo, NULL, &logical_device);
 	error_check(result, "Logical Device Creation");
+
+	// create command buffer -- 04 ------------------------------------------------
+	VkCommandPool command_pool;
+	VkCommandPoolCreateInfo command_pool_info = {};
+	command_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	command_pool_info.pNext = NULL;
+	command_pool_info.queueFamilyIndex = queue_fam;
+	command_pool_info.flags = 0;
+	error_check(vkCreateCommandPool(logical_device, &command_pool_info, NULL, &command_pool),
+		"Command Pool Creation");
+
+	VkCommandBufferAllocateInfo command_buffer_info = {};
+	VkCommandBuffer command_buffer;
+	command_buffer_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	command_buffer_info.pNext = NULL;
+	command_buffer_info.commandPool = command_pool;
+	command_buffer_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	command_buffer_info.commandBufferCount = 1;
+	error_check(vkAllocateCommandBuffers(logical_device, &command_buffer_info, &command_buffer),
+		"Command BUffer Creation");
+
+	// END 04 ---------------------------------------------------------------------
+
 
 
 	// initialize surfaces
@@ -113,7 +141,7 @@ void Vulkan::init(){
 	    std::cout << "ERROR IN FUNCTION POINTER ACQUISITION\n";
 	}
 
-	XCB xcb_window;
+	XCB* xcb_window = new XCB(800,600);
 
 	VkSurfaceKHR surface;
 	#if defined(_WIN32)
@@ -130,13 +158,66 @@ void Vulkan::init(){
 	#else
 	VkXcbSurfaceCreateInfoKHR surfaceCreateInfo;
 	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-	surfaceCreateInfo.connection = xcb_window.get_connection();               // provided by the platform code
-	surfaceCreateInfo.window = xcb_window.get_window();                       // provided by the platform code
+	surfaceCreateInfo.pNext = NULL;
+	surfaceCreateInfo.connection = xcb_window->get_connection();
+	surfaceCreateInfo.window = xcb_window->get_window();
+
+	// ----- dammit what is happening 
+	std::cout << "Surface Creation Sanity Check: " << std::endl;
+
+	std::cout << "\tconnection:\t" << surfaceCreateInfo.connection << std::endl;
+	std::cout << "\tget_connection()\t" << xcb_window->get_connection() << std::endl;
+	std::cout << "\twindow:\t" << surfaceCreateInfo.window << std::endl;
+
+	// --------------------------------
+
+
 	VkResult result = vkCreateXcbSurfaceKHR(instance, &surfaceCreateInfo, NULL, &surface);
+	error_check(result, "XCB surface creation");
 	#endif
-	error_check(result, "Platform-specific surface");
+
+	VkPhysicalDevice preferredDevice = physicalDevices[0];
+	std::cout << "Preferred Physical Device: " << preferredDevice << std::endl;
+
+	// determine if physical device supports surfaced
+	VkBool32 is_supported;
+	error_check( vkGetPhysicalDeviceSurfaceSupportKHR(preferredDevice, 0, surface, &is_supported) , 
+		"Physical device + surface support check"
+	);
+
+	if (is_supported == VK_TRUE)
+		std::cout << "Physical device supports surface" << std::endl;
+	else
+		std::cout << "Physical device does not support surface" << std::endl;
+
+	// store properties of physical device surface
+	VkSurfaceCapabilitiesKHR surfaceCapabilities;
+/*
+
+THIS IS WHERE IT HITS THE FAN :(
+
+*/
 
 
+	result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevices[0], surface, &surfaceCapabilities);
+	error_check(	result, "Getting device + surface capabilities");
+
+
+	std::cout << "is this error not ruinous?" <<std::endl; // it is :(
+
+	// swapchain construct
+	deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+	VkSwapchainCreateInfoKHR swapchain_create_info = {};
+	swapchain_create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	swapchain_create_info.pNext = NULL;
+	swapchain_create_info.surface = surface;
+
+
+	swapchain_create_info.imageFormat = VK_FORMAT_B8G8R8A8_UNORM; // this could be problematic
+
+	// minimum number of images for swapchain
+//	uint32_t swapchain_image_count = 
 
 	vkDestroyInstance(instance, NULL);
 }
@@ -159,7 +240,10 @@ void Vulkan::populate_instance_info(VkInstanceCreateInfo& ii){
 	ii.enabledLayerCount = 0;
 	ii.ppEnabledLayerNames = NULL;
 	ii.enabledExtensionCount = enabledExtensions.size();
-	ii.ppEnabledExtensionNames = &enabledExtensions[0];
+	ii.ppEnabledExtensionNames = enabledExtensions.data();
+	std::cout << "initialized instance with " << ii.enabledExtensionCount << " extensions: " <<std::endl;
+	for( int i=0; i < ii.enabledExtensionCount; ++i)
+		std::cout << "\t" << ii.ppEnabledExtensionNames[i] << std::endl;
 
 }
 
@@ -172,6 +256,7 @@ void Vulkan::populate_application_info(VkApplicationInfo& ai){
 	ai.engineVersion = 0;
 	ai.apiVersion = VK_API_VERSION_1_0;
 }
+
 
 
 void Vulkan::error_check(VkResult error_code, const std::string& error_type){
@@ -205,6 +290,7 @@ void Vulkan::error_check(VkResult error_code, const std::string& error_type){
 			break;
 		default:
 			std::cout << "some other weird error happened: " << (int)error_code;
+			exit(1);
 	}
 	std::cout << std::endl;
 }
